@@ -13,14 +13,21 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
 
-# 静态资源长缓存：文件名带内容含义，换图就换文件，不会拿到旧图
+# 静态资源长缓存。
+# ⚠️ 前提是「换图就换 URL」—— 而图标这类文件名是**固定**的（icon-180.png /
+# favicon-32.png），换了品牌图文件名并不会变。所以页面里的 assets 引用统一带
+# `?v=<内容指纹>`（由主仓库 site/tools/make_assets.py 自动生成）：
+# 资源一改指纹就变、URL 就变，浏览器自然会重新拉取；没改则指纹不变、缓存照旧有效。
+# 换句话说：**别手工改 assets/ 里的图，改完要跑一次 make_assets.py。**
 [[headers]]
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=604800"
 
-# 两份隐私政策用短缓存：改文案后要尽快生效（商店表单填的就是这两个地址）
+# 两份隐私政策用短缓存：改文案后要尽快生效（商店表单填的就是这两个地址）。
+# 路径写 /privacy* —— Netlify 会把 /privacy.html 改写成无扩展名的 /privacy，
+# 只写 /privacy*.html 的话规范 URL 反而拿不到这条规则。
 [[headers]]
-  for = "/privacy*.html"
+  for = "/privacy*"
   [headers.values]
-    Cache-Control = "public, max-age=600"
+    Cache-Control = "public, max-age=0, must-revalidate"
