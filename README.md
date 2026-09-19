@@ -10,7 +10,22 @@
 依赖主仓库的 `preview/`，在本仓库里单独跑不起来）。
 
 **不要在本仓库直接改页面** —— 下次同步会被覆盖。改法：在主仓库改 `site/`，
-再跑一次 `python sync_site.py` 把改动同步过来（脚本会校验两边逐字节一致）。
+再跑一次主仓库根目录的 `sync_site.py` 把改动同步过来：
+
+```bash
+# 只校验两边是否一致（有漂移退出码 1，可挂进自检）
+python sync_site.py --check
+
+# 真的同步（文本按 LF 归一化后写入）
+python sync_site.py --apply
+
+# 同步并提交推送（Netlify 随即自动重新部署）
+python sync_site.py --apply --push
+```
+
+脚本以**主仓库 `site/` 为唯一源**，默认只做差异报告、不写文件；写入后会复查一遍
+归一化后的逐字节一致性。`README.md` / `netlify.toml` / `.gitignore` 属于本仓库自己的
+元数据，不参与同步，也不会被当成多余文件报错。
 
 ## 页面
 
