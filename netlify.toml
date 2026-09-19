@@ -1,0 +1,26 @@
+# Netlify 部署配置：纯静态站点，没有构建步骤。
+# Netlify 读到这个文件就会自动用下面的发布目录，不用在网页上手动填。
+
+[build]
+  # 站点文件就在仓库根目录（index.html / privacy.html / assets/）
+  publish = "."
+
+# 基础安全响应头。
+# 故意不加 CSP：页面里有内联 <script>（首屏兜底定时器）与内联样式，加 CSP 会把它们拦掉。
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+
+# 静态资源长缓存：文件名带内容含义，换图就换文件，不会拿到旧图
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=604800"
+
+# 两份隐私政策用短缓存：改文案后要尽快生效（商店表单填的就是这两个地址）
+[[headers]]
+  for = "/privacy*.html"
+  [headers.values]
+    Cache-Control = "public, max-age=600"
